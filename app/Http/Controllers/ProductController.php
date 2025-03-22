@@ -12,11 +12,12 @@ class ProductController extends Controller
     {
         if ($request->has('search') && $request->search !== null) {
             $search = strtolower($request->search);
-            $products = Product::whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
-                        ->paginate(10)
-                        ->appends($request->only('search'));;
+            $products = Product::whereRaw('LOWER(name) LIKE ?', ['%'.$search.'%'])
+                ->orderByRaw('LOWER(name) ASC')
+                ->paginate(10)
+                ->appends($request->only('search'));
         } else {
-            $products = Product::paginate(10);
+            $products = Product::orderByRaw('LOWER(name) ASC')->paginate(10);
         }
 
         return view('products.index', compact('products'));
@@ -30,24 +31,24 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string',
-            'image'    => 'required|image|mimes:jpeg,png,jpg,gif',
+            'name' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif',
             'quantity' => 'required|integer',
-            'price'    => 'required|numeric',
+            'price' => 'required|numeric',
         ]);
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images', 'public');
+            $imagePath = $request->file('image')->store('images/products', 'public');
         }
 
         Product::create([
-            'name'     => $request->name,
-            'image'    => $imagePath ?? null,
+            'name' => $request->name,
+            'image' => $imagePath ?? null,
             'quantity' => $request->quantity,
-            'price'    => $request->price,
+            'price' => $request->price,
         ]);
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        return redirect()->route('products.index')->with('message', 'Product created successfully.');
     }
 
     public function show(Product $product)
@@ -63,16 +64,16 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name'     => 'required|string',
-            'image'    => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'name' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'quantity' => 'required|integer',
-            'price'    => 'required|numeric',
+            'price' => 'required|numeric',
         ]);
 
         $data = [
-            'name'     => $request->name,
+            'name' => $request->name,
             'quantity' => $request->quantity,
-            'price'    => $request->price,
+            'price' => $request->price,
         ];
 
         if ($request->hasFile('image')) {
@@ -80,12 +81,26 @@ class ProductController extends Controller
                 Storage::disk('public')->delete($product->image);
             }
 
-            $imagePath = $request->file('image')->store('images', 'public');
+            $imagePath = $request->file('image')->store('images/products', 'public');
             $data['image'] = $imagePath;
         }
 
         $product->update($data);
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    }
+
+    public function updateStock(Request $request, $id)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->quantity = $request->quantity;
+        $product->save();
+
+        return redirect()->route('products.index')->with('message', 'Stock updated successfully.');
     }
 
     public function destroy(Product $product)
@@ -95,6 +110,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
+
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }

@@ -17,7 +17,7 @@
             {{-- produk master --}}
             <li class="menu-header">Menu</li>
             <li class="{{ Request::is('product') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('product.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
+                <a class="nav-link" href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
             </li>
             <li class="{{ Request::is('selling-report') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('selling-report') }}"><i class="fas fa-shopping-cart"></i> <span>Penjualan</span></a>
@@ -26,6 +26,12 @@
             <li class="menu-header">User</li>
             <li class="{{ Request::is('user') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('user.index')}}"><i class="fas fa-user-shield"></i> <span>User</span></a>
+            </li>
+            @endif
+            @if (Auth::user()->role == 'user')
+            <li class="menu-header">Menu</li>
+            <li class="{{ Request::is('product') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
             </li>
             @endif
         </ul>

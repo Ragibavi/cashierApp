@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Product;
-use Illuminate\Support\Str;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
             Product::create([
                 'id' => Str::uuid(),
                 'name' => $faker->words(3, true),
-                'image' => 'image' . $i . '.jpg',
+                'image' => 'image'.$i.'.jpg',
                 'quantity' => $faker->numberBetween(1, 100),
                 'price' => $faker->randomFloat(2, 10, 1000),
             ]);

@@ -11,15 +11,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    public $incrementing = false; 
-    protected $keyType = 'string'; 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 
+        'id',
         'name',
         'email',
         'password',
-        'role', 
+        'role',
     ];
 
     protected $hidden = [
