@@ -1,6 +1,9 @@
+<?php
+use Illuminate\Support\Facades\DB;
+?>
 @extends('layouts.app')
 
-@section('title', 'Produk')
+@section('title', 'Penjualan')
 
 @push('style')
 @endpush
@@ -11,13 +14,13 @@
         <div class="margin-content">
             <div class="container-sm">
                 <div class="section-header">
-                    <h1>Produk</h1>
+                    <h1>Penjualan</h1>
                 </div>
                 <div class="section-body">
                     <div class="table-responsive">
                         <div class="row mb-3">
                             <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                <form action="{{ route('products.index') }}" method="GET" class="d-flex"
+                                <form action="{{ route('sales.index') }}" method="GET" class="d-flex"
                                 style="max-width: 100%%;">
                                 <div class="input-group">
                                     <input type="text" name="search" class="form-control rounded"
@@ -27,59 +30,48 @@
                                     </div>
                                 </div>
                             </form>
-                            @if(Auth::user()->role == 'superadmin')
-                            <a href="{{ route('products.create') }}" class="btn btn-success ml-2 p-2">
-                                Create Product
+                            @can('superadmin')
+                            <a href="{{ route('sales.create') }}" class="btn btn-success ml-2 p-2">
+                                Tambah Penjualan
                             </a>
-                            @endif
+                            @endcan
                         </div>
                     </div>
                     <table class="table table-bordered" style="background-color: #f3f3f3">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama</th>
-                                <th>Gambar</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                @if(Auth::user()->role == 'superadmin')
+                                <th>Nama Pelanggan</th>
+                                <th>Tanggal Penjualan</th>
+                                <th>Total Harga</th>
+                                <th>Dibuat Oleh</th>
                                 <th>Action</th>
-                                @endif
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($products as $index => $item)
                             <tr>
-                                <td>{{ $products->firstItem() + $index }}</td>
-                                <td>{{ $item->name }}</td>
-                                <td class="text-center"><img src="{{ asset('storage/' . $item->image) }}"
-                                    width="100"></td>
-                                    <td>{{ 'Rp ' . number_format($item->price, 0, ',', '.') }}</td>
-                                    <td>{{ $item->quantity }}</td>
-                                    @if(Auth::user()->role == 'superadmin')
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-primary edit-stock-btn"
-                                        data-id="{{ $item->id }}" data-name="{{ $item->name }}"
-                                        data-quantity="{{ $item->quantity }}" data-toggle="modal"
-                                        data-target="#editStockModal">
-                                        Edit Stok
-                                    </button>
-                                    <a href="{{ route('products.edit', $item->id) }}"
-                                        class="btn btn-primary">Edit</a>
-                                        <form action="{{ route('products.destroy', $item->id) }}" method="POST"
-                                            class="delete-form" style="display: inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
-                                    </td>
-                                    @endif
-                                </tr>
-                                @endforeach
-                            </tbody>
+                                @foreach ($sales as $index => $item)
+                                <td>{{ $sales->firstItem() + $index }}</td>
+                                <td>{{ $item->customer_name }}</td>
+                                <td>{{ $item->created_at }}</td>
+                                <td>{{ 'Rp ' . number_format($item->total_amount, 0, ',', '.') }}</td>
+                                <td>{{ DB::table('users')->where('id', $item->user_id)->value('name') }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-primary edit-stock-btn"
+                                    data-id="{{ $item->id }}" data-name="{{ $item->invoice_number }}"
+                                    data-quantity="{{ $item->quantity }}" data-toggle="modal"
+                                    data-target="#editStockModal">
+                                    Lihat
+                                </button>
+                                <a href="{{ route('sales.edit', $item->id) }}"
+                                    class="btn btn-primary">Unduh Bukti</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
                         </table>
                         <div class="d-flex justify-content-end mt-3">
-                            {{ $products->links() }}
+                            {{ $sales->links() }}
                         </div>
                     </div>
                 </div>
@@ -158,7 +150,7 @@ aria-hidden="true">
                 productName.textContent = `Product: ${name}`;
                 quantityInput.value = quantity;
                 
-                editStockForm.action = `/products/${id}/update-stock`;
+                editStockForm.action = `/sales/${id}/update-stock`;
             });
         });
         

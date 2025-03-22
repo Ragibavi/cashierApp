@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit User')
+@section('title', 'Create User')
 
 @section('content')
 <div class="main-content-table">
@@ -8,7 +8,7 @@
         <div class="margin-content">
             <div class="container-sm">
                 <div class="section-header">
-                    <h1>Edit User</h1>
+                    <h1>Create User</h1>
                 </div>
 
                 @if (session('error'))
@@ -30,25 +30,30 @@
                 <div class="section-body">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <form action="{{ route('user.update', $user->id) }}" method="POST">
+                            <form action="{{ route('user.store') }}" method="POST">
                                 @csrf
-                                @method('PUT')
 
                                 <div class="form-group mb-3">
                                     <label for="name">Nama</label>
-                                    <input type="text" class="form-control" name="name" id="name" placeholder="Nama Lengkap" value="{{ old('name', $user->name) }}" required>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="Nama" value="{{ old('name') }}" required>
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="password">Password <small>(Biarkan kosong jika tidak ingin mengubah)</small></label>
-                                    <input type="password" class="form-control" name="password" id="password" placeholder="Password Baru">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="{{ old('email') }}" required>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
                                 </div>
 
                                 <div class="form-group mb-4">
                                     <label for="role">Role</label>
                                     <select name="role" id="role" class="form-control" required>
-                                        <option value="superadmin" {{ old('role', $user->role) === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
-                                        <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>User</option>
+                                        <option value="" disabled selected>Pilih Role</option>
+                                        <option value="superadmin" {{ old('role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
+                                        <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>User</option>
                                     </select>
                                 </div>
 
@@ -56,8 +61,8 @@
                                     <a href="{{ route('user.index') }}" class="btn btn-secondary">
                                         Back
                                     </a>
-                                    <button type="submit" class="btn btn-success">
-                                        Update User
+                                    <button type="submit" class="btn btn-primary">
+                                        Create User
                                     </button>
                                 </div>
                             </form>

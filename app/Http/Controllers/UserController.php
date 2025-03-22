@@ -38,9 +38,10 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->role = $request->role;
         $user->save();
 
-        return redirect()->route('user.index');
+        return redirect()->route('user.index')->with('message', 'User created successfully!');
     }
 
     public function edit($id)
@@ -54,9 +55,11 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $user->name = $request->name;
+        $user->password = Hash::make($request->password);
+        $user->role = $request->role;
         $user->save();
 
-        return redirect()->route('user.index');
+        return redirect()->route('user.index')->with('message', 'User updated successfully!');
     }
 
     public function destroy($id)

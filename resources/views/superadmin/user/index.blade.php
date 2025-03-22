@@ -14,31 +14,27 @@
                 <div class="section-header">
                     <h1>User</h1>
                 </div>
-                @if (session('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
-                @endif
-                @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-                @endif
                 <div class="section-body">
                     <div class="table-responsive">
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <form action="{{ route('user.index') }}" method="GET">
-                                    <div class="input-group">
-                                        <input type="text" name="search" class="form-control" placeholder="Search">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" style="margin-left:5px;" type="submit">Search</button>
-                                        </div>
+                            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                                <form action="{{ route('user.index') }}" method="GET" class="d-flex"
+                                style="max-width: 100%%;">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control rounded"
+                                    placeholder="Search">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary rounded ml-2" type="submit">Search</button>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
+                            @if(Auth::user()->role == 'superadmin')
+                            <a href="{{ route('user.create') }}" class="btn btn-success ml-2 p-2">
+                                Create User
+                            </a>
+                            @endif
                         </div>
-                        <table class="table table-bordered" style="background-color: #f3f3f3">
+                        <table class="table table-bordered my-3" style="background-color: #f3f3f3">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -57,7 +53,7 @@
                                     <td>{{ $item->role }}</td>
                                     <td class="text-center">
                                         <a href="{{ route('user.edit', $item->id) }}" class="btn btn-primary">Edit</a>
-                                        <form action="{{ route('user.destroy', $item->id) }}" method="POST" style="display: inline-block;">
+                                        <form action="{{ route('user.destroy', $item->id) }}" method="POST" class="delete-form" style="display: inline-block;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -79,7 +75,44 @@
 @endsection
 
 @push('scripts')
-<!-- JS Libraries -->
+<script>
+    document.querySelectorAll('form[action*="user"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "User will be permanently deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
+    });
 
-<!-- Page Specific JS File -->
+    @if(session('message'))
+        Swal.fire({
+            title: 'Success!',
+            text: '{{ session('message') }}',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            icon: 'error',
+            timer: 3000,
+            showConfirmButton: false,
+        });
+    @endif
+</script>
 @endpush

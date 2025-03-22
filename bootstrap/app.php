@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            'authenticate' => \App\Http\Middleware\Authenticate::class,
             'superadmin' => \App\Http\Middleware\SuperAdmin::class,
             'user' => \App\Http\Middleware\User::class,
         ]);

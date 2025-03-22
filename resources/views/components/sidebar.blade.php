@@ -19,19 +19,29 @@
             <li class="{{ Request::is('product') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
             </li>
-            <li class="{{ Request::is('selling-report') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('selling-report') }}"><i class="fas fa-shopping-cart"></i> <span>Penjualan</span></a>
+            <li class="{{ Request::is('sales') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('sales.index') }}"><i class="fas fa-shopping-cart"></i> <span>Penjualan</span></a>
             </li>
             {{-- user master --}}
             <li class="menu-header">User</li>
             <li class="{{ Request::is('user') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('user.index')}}"><i class="fas fa-user-shield"></i> <span>User</span></a>
             </li>
+            <li class="{{ Request::is('members') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('members.index')}}"><i class="fas fa-user"></i> <span>Member</span></a>
+            </li>
+
             @endif
             @if (Auth::user()->role == 'user')
             <li class="menu-header">Menu</li>
             <li class="{{ Request::is('product') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
+            </li>
+
+            {{-- user master --}}
+            <li class="menu-header">User</li>
+            <li class="{{ Request::is('members') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('members.index')}}"><i class="fas fa-user"></i> <span>Member</span></a>
             </li>
             @endif
         </ul>
