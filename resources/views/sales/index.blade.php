@@ -30,11 +30,15 @@ use Illuminate\Support\Facades\DB;
                                     </div>
                                 </div>
                             </form>
-                            @can('superadmin')
+                            @if(Auth::user()->role == 'user')
                             <a href="{{ route('sales.create') }}" class="btn btn-success ml-2 p-2">
                                 Tambah Penjualan
                             </a>
-                            @endcan
+                            @else 
+                            <a href="{{ route('sales.export') }}" class="btn btn-success ml-2 p-2">
+                                Export Excel
+                            </a>                            
+                            @endif
                         </div>
                     </div>
                     <table class="table table-bordered" style="background-color: #f3f3f3">
@@ -57,15 +61,9 @@ use Illuminate\Support\Facades\DB;
                                 <td>{{ 'Rp ' . number_format($item->total_amount, 0, ',', '.') }}</td>
                                 <td>{{ DB::table('users')->where('id', $item->user_id)->value('name') }}</td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-primary edit-stock-btn"
-                                    data-id="{{ $item->id }}" data-name="{{ $item->invoice_number }}"
-                                    data-quantity="{{ $item->quantity }}" data-toggle="modal"
-                                    data-target="#editStockModal">
-                                    Lihat
-                                </button>
-                                <a href="{{ route('sales.edit', $item->id) }}"
-                                    class="btn btn-primary">Unduh Bukti</a>
-                                </td>
+                                    <button type="button" class="btn btn-primary detail-transaction-btn" data-toggle="modal" data-target="#transactionDetailModal" data-transaction='{{ json_encode($item) }}'>Lihat</button>
+                                    <a href="{{ route('sales.invoice', $item->id) }}" class="btn btn-primary">Unduh Bukti</a>
+                                </td>                        
                             </tr>
                             @endforeach
                         </tbody>
@@ -80,97 +78,80 @@ use Illuminate\Support\Facades\DB;
     </div>
 </div>
 
-<!-- Edit Stock Modal -->
-<div class="modal fade" id="editStockModal" tabindex="-1" role="dialog" aria-labelledby="editStockModalLabel"
-aria-hidden="true">
-<div class="modal-dialog" role="document">
-    <form id="editStockForm" method="POST">
-        @csrf
-        @method('PUT')
+<!-- Detail Transaksi Modal -->
+<div class="modal fade" id="transactionDetailModal" tabindex="-1" aria-labelledby="transactionDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editStockModalLabel">Edit Stock</h5>
+                <h5 class="modal-title">Detail Transaksi</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p id="productName" class="font-weight-bold"></p>
-                <div class="form-group">
-                    <label for="quantityInput">Quantity</label>
-                    <input type="number" min="0" class="form-control" id="quantityInput" name="quantity"
-                    required>
+                <p><strong>Nomor Invoice:</strong> <span id="invoiceNumber"></span></p>
+                <p><strong>Nama Pelanggan:</strong> <span id="customerName"></span></p>
+                <p><strong>Total Bayar:</strong> Rp <span id="paymentAmount"></span></p>
+                <p><strong>Total Harga:</strong> Rp <span id="totalAmount"></span></p>
+                <p><strong>Potongan Harga:</strong> Rp <span id="discountAmount">0</span></p>
+                <p><strong>Kembalian:</strong> Rp <span id="changeAmount"></span></p>
+                <h5 class="mt-3">Produk:</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Produk</th>
+                                <th>Harga</th>
+                                <th>Jumlah</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionProducts"></tbody>
+                    </table>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Update Stock</button>
-            </div>
         </div>
-    </form>
-</div>
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteForms = document.querySelectorAll('.delete-form');
-        deleteForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This action cannot be undone!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.detail-transaction-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const data = JSON.parse(this.getAttribute('data-transaction'));
+
+            const transactionProducts = document.getElementById('transactionProducts');
+            transactionProducts.innerHTML = '';
+
+            let products = typeof data.product_data === "string" ? JSON.parse(data.product_data) : data.product_data;
+
+            let totalProductPrice = 0;
+
+            products.forEach((product, index) => {
+                const subtotal = product.price * product.quantity;
+                totalProductPrice += subtotal;
+
+                transactionProducts.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${product.name}</td>
+                        <td>Rp ${parseInt(product.price || 0).toLocaleString('id-ID')}</td>
+                        <td>${product.quantity}</td>
+                        <td>Rp ${subtotal.toLocaleString('id-ID')}</td>
+                    </tr>`;
             });
+
+            document.getElementById('invoiceNumber').textContent = data.invoice_number || 'N/A';
+            document.getElementById('customerName').textContent = data.customer_name || 'N/A';
+            document.getElementById('totalAmount').textContent = (data.total_amount || 0).toLocaleString('id-ID');
+            document.getElementById('paymentAmount').textContent = (data.payment_amount || 0).toLocaleString('id-ID');
+            document.getElementById('changeAmount').textContent = (data.change_amount || 0).toLocaleString('id-ID');
+            document.getElementById('discountAmount').textContent = (totalProductPrice - data.total_amount || 0).toLocaleString('id-ID');
         });
-        
-        const editStockButtons = document.querySelectorAll('.edit-stock-btn');
-        const editStockForm = document.getElementById('editStockForm');
-        const quantityInput = document.getElementById('quantityInput');
-        const productName = document.getElementById('productName');
-        
-        editStockButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.getAttribute('data-id');
-                const name = button.getAttribute('data-name');
-                const quantity = button.getAttribute('data-quantity');
-                
-                productName.textContent = `Product: ${name}`;
-                quantityInput.value = quantity;
-                
-                editStockForm.action = `/sales/${id}/update-stock`;
-            });
-        });
-        
-        @if (session('message'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: '{{ session('message') }}',
-            confirmButtonColor: '#3085d6'
-        });
-        @endif
-        
-        @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops!',
-            text: '{{ session('error') }}',
-            confirmButtonColor: '#d33'
-        });
-        @endif
     });
-    </script>
+});
+</script>
 @endpush

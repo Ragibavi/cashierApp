@@ -37,6 +37,9 @@
             <li class="{{ Request::is('product') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>Produk</span></a>
             </li>
+            <li class="{{ Request::is('sales') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('sales.index') }}"><i class="fas fa-shopping-cart"></i> <span>Penjualan</span></a>
+            </li>
 
             {{-- user master --}}
             <li class="menu-header">User</li>

@@ -22,7 +22,7 @@ Welcome to the repository for laravel 12 - Cashier App
 
 2. Navigate into the project directory:
     ```bash
-    cd laravel11-stisla
+    cd cashierApp
     ```
 
 3. Install PHP dependencies:
