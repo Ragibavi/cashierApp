@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Edit Profile')
+
 @section('content')
 <div class="main-content-table">
     <div class="margin-content" style="margin-top: 3rem">

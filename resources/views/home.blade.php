@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard')
+
 @section('content')
 {{-- <div class="main-content">
     <div class="row justify-content-center">
