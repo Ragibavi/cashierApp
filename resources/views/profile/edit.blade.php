@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="main-content">
+<div class="main-content-table">
+    <div class="margin-content" style="margin-top: 3rem">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Edit Profile') }}</div>
-
                 <div class="card-body">
                     <form method="POST" action="{{ route('profile.update') }}">
                         @csrf
@@ -52,5 +52,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
